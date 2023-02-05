@@ -1,5 +1,5 @@
 import mysql from "mysql2"
-const data = require('./config.json');
+import data from './config.json' assert { type: 'json'};
 
 const db = mysql.createConnection({
     host: 'localhost',
