@@ -13,37 +13,41 @@
         </div>
 
         <div class="container">
-          <div class="logo-container">
+          <div v-if="nextGame[0].HomeCity !== 'Denver'" class="logo-container">
             <img class="logo" :src="nextGame[0].HomeLogo" alt="Team 1 logo">
             <div class="team-name">{{ nextGame[0].HomeCity }} {{ nextGame[0].HomeState }} </div>
-
           </div>
-          <span>vs.</span>
-          <div class="logo-container">
+
+          <div v-else class="logo-container">
             <img class="logo" :src="nextGame[0].AwayLogo" alt="Team 2 logo">
             <div class="team-name">{{ nextGame[0].AwayCity }} {{ nextGame[0].AwayState }}</div>
           </div>
         </div>
+        
       </div>
 
 
       <div v-for="game in games" :key="game.id">
         <div class="box2" v-if="game?.GameTime > nextGame[0]?.GameTime">
+          <h3 v-if="game.HomeCity === 'Denver'" class="team-name">HOME</h3>
+          <h3 v-else class="team-name">AWAY</h3>
+
           <div class="container">
-            <div class="logo-container">
+            <div v-if="game.HomeCity !== 'Denver'" class="logo-container">
               <img class="logo2" :src="game.HomeLogo" alt="Team 1 logo">
               {{ game.HomeCity }} {{ game.HomeState }}
             </div>
-            <span>vs.</span>
-            <div class="logo-container">
+            <div v-else class="logo-container">
               <img class="logo2" :src="game.AwayLogo" alt="Team 2 logo">
               {{ game.AwayCity }} {{ game.AwayState }}
             </div>
           </div>
+
           <div style="text-align:center">
             <p>{{ format_date(game?.GameTime) }}</p>
           </div>
         </div>
+
       </div>
 
     </div>

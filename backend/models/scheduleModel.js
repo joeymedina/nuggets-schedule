@@ -19,7 +19,7 @@ export const getNextGame = (result) => {
               from Schedule
               join Teams AS T1 on Schedule.homeTeam = T1.id
               join Teams AS T2 on Schedule.awayTeam = T2.id
-              WHERE schedule.time > '${today.toISOString()}' LIMIT 1`, (err, results) => 
+              WHERE DATE(schedule.time) >= DATE('${today.toISOString()}') LIMIT 1`, (err, results) => 
     {
         if(err) {
             console.log(err);

@@ -1,7 +1,7 @@
 {
   "name": "nuggets-schedule",
   "version": "1.0.0",
-  "description": "`cd backend` `node index`",
+  "description": "",
   "type": "module",
   "main": "index.js",
   "scripts": {
