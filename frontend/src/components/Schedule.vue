@@ -23,7 +23,7 @@
             <div class="team-name">{{ nextGame[0].AwayCity }} {{ nextGame[0].AwayState }}</div>
           </div>
         </div>
-        
+
       </div>
 
 
@@ -57,6 +57,7 @@
 <script>
 import axios from "axios";
 import moment from "moment-timezone";
+// import { NODE_ENV } from '../../../backend/config/config.js';
 
 export default {
   name: "ListSchedule",
@@ -68,8 +69,23 @@ export default {
   },
 
   created() {
-    this.getGames();
-    this.getNextGame();
+    const allGamesCached = localStorage.getItem('allGamesCached');
+    const nextGameCached = localStorage.getItem('nextGameCached');
+    const cachedDataExpires = localStorage.getItem('cachedDataExpires');
+
+    if (allGamesCached && nextGameCached && cachedDataExpires) {
+      const now = new Date();
+      const expires = new Date(cachedDataExpires);
+      
+      if (now < expires) {
+        this.games = JSON.parse(allGamesCached);
+        this.nextGame = JSON.parse(nextGameCached);
+      } else {
+        this.loadData();
+      }
+    } else {
+      this.loadData();
+    }
   },
 
   computed: {
@@ -83,11 +99,26 @@ export default {
   ,
 
   methods: {
+    async loadData() {
+      const allGames = await this.getGames();
+      const nextGame = await this.getNextGame();
+
+      this.games = allGames;
+      this.nextGame = nextGame;
+
+      localStorage.setItem('allGamesCached', JSON.stringify(allGames));
+      localStorage.setItem('nextGameCached', JSON.stringify(nextGame));
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      localStorage.setItem('cachedDataExpires', tomorrow);
+    },
+
     // Get All Games
     async getGames() {
       try {
-        const response = await axios.get("http://localhost:3000/fullGameData");
-        this.games = response.data;
+        const response = await axios.get(`http://localhost:3000/fullGameData`);
+        return response.data;
       } catch (err) {
         console.log(err);
       }
@@ -96,8 +127,8 @@ export default {
     // Get Next Game >= Today 
     async getNextGame() {
       try {
-        const response = await axios.get("http://localhost:3000/nextGame");
-        this.nextGame = response.data;
+        const response = await axios.get(`http://localhost:3000/nextGame`);
+        return response.data;
       } catch (err) {
         console.log(err);
       }
