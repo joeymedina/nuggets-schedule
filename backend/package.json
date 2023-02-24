@@ -6,7 +6,7 @@
     "main": "index.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "cd frontend && npm run build",
+        "build": "cd $PWD/../frontend && npm run build",
         "postbuild": "npm run start",
         "start": "node index",
         "dev": "npm run start"
