@@ -1,11 +1,11 @@
 import mysql from "mysql2"
-import data from './config.json' assert { type: 'json'};
+import { HOST, DB_NAME, DB_USER, DB_PASS } from './config.js'
 
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: data.password,
-    database: 'NuggetsSchedule'
+    host: HOST,
+    user: DB_USER,
+    password: DB_PASS,
+    database: DB_NAME
 });
 
 export default db;

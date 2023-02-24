@@ -8,11 +8,11 @@ import Index from './components/Schedule.vue'
 const routes = [
     {
         name: 'Index',
-        path: '/index',
+        path: '/',
         component: Index
     }
 ]
 export const eventBus = createApp(App);
-const router = createRouter({history: createWebHistory(process.env.BASE_URL), routes})
+const router = createRouter({history: createWebHistory(process.env.VUE_APP_BASE_URL), routes})
 
 createApp(App).use(Index).use(router).mount('#app')

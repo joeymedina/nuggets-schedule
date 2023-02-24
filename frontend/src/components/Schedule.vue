@@ -55,7 +55,8 @@
 </template>
 
 <script>
-import axios from "axios";
+// import axios from "axios";
+import http from "../http-common.js";
 import moment from "moment-timezone";
 // import { NODE_ENV } from '../../../backend/config/config.js';
 
@@ -117,7 +118,7 @@ export default {
     // Get All Games
     async getGames() {
       try {
-        const response = await axios.get(`http://localhost:3000/fullGameData`);
+        const response = await http.get(`/fullGameData`);
         return response.data;
       } catch (err) {
         console.log(err);
@@ -127,7 +128,7 @@ export default {
     // Get Next Game >= Today 
     async getNextGame() {
       try {
-        const response = await axios.get(`http://localhost:3000/nextGame`);
+        const response = await http.get(`/nextGame`);
         return response.data;
       } catch (err) {
         console.log(err);
