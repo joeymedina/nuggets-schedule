@@ -15,11 +15,11 @@ export const getGames = (result) => {
 }
 
 export const getNextGame = (result) => {
-    db.query(`select schedule.id, schedule.time as GameTime, T1.City AS HomeCity, T1.Name as HomeState, T1.logo as HomeLogo, T2.City as AwayCity, T2.Name as AwayState, T2.logo as AwayLogo
+    db.query(`select Schedule.id, Schedule.time as GameTime, T1.City AS HomeCity, T1.Name as HomeState, T1.logo as HomeLogo, T2.City as AwayCity, T2.Name as AwayState, T2.logo as AwayLogo
               from Schedule
               join Teams AS T1 on Schedule.homeTeam = T1.id
               join Teams AS T2 on Schedule.awayTeam = T2.id
-              WHERE DATE(schedule.time) >= DATE('${today.toISOString()}') LIMIT 1`, (err, results) => 
+              WHERE DATE(Schedule.time) >= DATE('${today.toISOString()}') LIMIT 1`, (err, results) => 
     {
         if(err) {
             console.log(err);
@@ -31,11 +31,11 @@ export const getNextGame = (result) => {
 }
 
 export const getFullGameData = (result) => {
-    db.query(`select schedule.id, schedule.time as GameTime, T1.City AS HomeCity, T1.Name as HomeState, T1.logo as HomeLogo, T2.City as AwayCity, T2.Name as AwayState, T2.logo as AwayLogo
+    db.query(`select Schedule.id, Schedule.time as GameTime, T1.City AS HomeCity, T1.Name as HomeState, T1.logo as HomeLogo, T2.City as AwayCity, T2.Name as AwayState, T2.logo as AwayLogo
               from Schedule
               join Teams AS T1 on Schedule.homeTeam = T1.id
               join Teams AS T2 on Schedule.awayTeam = T2.id
-              order by time`, (err, results) => 
+              order by Schedule.time`, (err, results) => 
               {
                 if(err) {
                     console.log(err);
