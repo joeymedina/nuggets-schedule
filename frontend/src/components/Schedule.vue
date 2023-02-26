@@ -2,6 +2,7 @@
   <div>
     <div class="box" id="heading">
       <h1>Denver Nuggets 2022-2023</h1>
+      <h2>({{ teamRecord }})</h2>
     </div>
 
     <div v-if="loadedNextGame">
@@ -16,11 +17,13 @@
           <div v-if="nextGame[0].HomeCity !== 'Denver'" class="logo-container">
             <img class="logo" :src="nextGame[0].HomeLogo" alt="Team 1 logo">
             <div class="team-name">{{ nextGame[0].HomeCity }} {{ nextGame[0].HomeState }} </div>
+            <div class="team-record">({{ nextGame[0].HomeTeamRecord }})</div>
           </div>
 
           <div v-else class="logo-container">
             <img class="logo" :src="nextGame[0].AwayLogo" alt="Team 2 logo">
             <div class="team-name">{{ nextGame[0].AwayCity }} {{ nextGame[0].AwayState }}</div>
+          <div class="team-record">({{ nextGame[0].AwayTeamRecord }})</div>
           </div>
         </div>
 
@@ -36,10 +39,13 @@
             <div v-if="game.HomeCity !== 'Denver'" class="logo-container">
               <img class="logo2" :src="game.HomeLogo" alt="Team 1 logo">
               {{ game.HomeCity }} {{ game.HomeState }}
+              <div class="team-record">({{ nextGame[0].HomeTeamRecord }})</div>
             </div>
             <div v-else class="logo-container">
               <img class="logo2" :src="game.AwayLogo" alt="Team 2 logo">
               {{ game.AwayCity }} {{ game.AwayState }}
+              <div class="team-record">({{ nextGame[0].AwayTeamRecord }})</div>
+
             </div>
           </div>
 
@@ -65,22 +71,25 @@ export default {
   data() {
     return {
       games: [],
-      nextGame: []
+      nextGame: [],
+      teamRecord: ''
     };
   },
 
   created() {
     const allGamesCached = localStorage.getItem('allGamesCached');
     const nextGameCached = localStorage.getItem('nextGameCached');
+    const teamRecordCached = localStorage.getItem('teamRecordCached');
     const cachedDataExpires = localStorage.getItem('cachedDataExpires');
 
     if (allGamesCached && nextGameCached && cachedDataExpires) {
-      const now = new Date();
-      const expires = new Date(cachedDataExpires);
-      
+      const now = new Date().toLocaleDateString();
+      const expires = new Date(cachedDataExpires).toLocaleDateString();
+      console.log(now,expires);
       if (now < expires) {
         this.games = JSON.parse(allGamesCached);
         this.nextGame = JSON.parse(nextGameCached);
+        this.teamRecord = teamRecordCached;
       } else {
         this.loadData();
       }
@@ -103,13 +112,15 @@ export default {
     async loadData() {
       const allGames = await this.getGames();
       const nextGame = await this.getNextGame();
+      const teamRecord = await this.getTeamRecord(1610612743);
 
       this.games = allGames;
       this.nextGame = nextGame;
+      this.teamRecord = teamRecord;
 
       localStorage.setItem('allGamesCached', JSON.stringify(allGames));
       localStorage.setItem('nextGameCached', JSON.stringify(nextGame));
-
+      localStorage.setItem('teamRecordCached', teamRecord);
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       localStorage.setItem('cachedDataExpires', tomorrow);
@@ -118,7 +129,7 @@ export default {
     // Get All Games
     async getGames() {
       try {
-        const response = await http.get(`/fullGameData`);
+        const response = await http.get(`/api/fullGameData`);
         return response.data;
       } catch (err) {
         console.log(err);
@@ -128,13 +139,21 @@ export default {
     // Get Next Game >= Today 
     async getNextGame() {
       try {
-        const response = await http.get(`/nextGame`);
+        const response = await http.get(`/api/nextGame`);
         return response.data;
       } catch (err) {
         console.log(err);
       }
-    }
-    ,
+      
+    },
+    async getTeamRecord(id) {
+      try {
+        const response = await http.get(`/api/getTeamRecord/${id}`);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
     // Convert from UTC to CST
     format_date(value) {
       if (value) {
@@ -243,6 +262,13 @@ body {
 
 .item:last-child {
   border-bottom: 0;
+}
+.team-record {
+  margin: 0;
+  padding: 5px 5px 5px 5px;
+  font-size: 14px;
+  font-weight: 200;
+  color: #00204a;
 }
 
 input:checked+p {

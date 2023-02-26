@@ -17,7 +17,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(Router);
-console.log(process.env.REACT_APP_CURRENT_GIT_SHA);
+
 app.get('/', function (req,res) {
     res.sendFile(path + "index.html");
   });
