@@ -20,7 +20,7 @@ app.use(express.static(path));
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
+console.log(process.env.PORT);
 app.use(Router);
 app.get('/', function (req,res) {
     res.sendFile(path + "index.html");
