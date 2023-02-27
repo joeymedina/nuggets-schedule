@@ -5,6 +5,7 @@ import cors from "cors";
 import bodyParser from 'body-parser';
 import Router from "./routes/routes.js";
 import { HOST, PORT } from './config/config.js'
+import { scheduleUpdateJob } from './jobs/updateJob.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -21,5 +22,5 @@ app.use(Router);
 app.get('/', function (req,res) {
     res.sendFile(path + "index.html");
   });
-
+  scheduleUpdateJob();
 app.listen(PORT, () => console.log(`Server running at ${HOST}:${PORT}`));
