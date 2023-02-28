@@ -23,7 +23,7 @@
           <div v-else class="logo-container">
             <img class="logo" :src="nextGame[0].AwayLogo" alt="Team 2 logo">
             <div class="team-name">{{ nextGame[0].AwayCity }} {{ nextGame[0].AwayState }}</div>
-          <div class="team-record">({{ nextGame[0].AwayTeamRecord }})</div>
+            <div class="team-record">({{ nextGame[0].AwayTeamRecord }})</div>
           </div>
         </div>
 
@@ -77,6 +77,15 @@ export default {
   },
 
   created() {
+
+    const currentVersion = localStorage.getItem('appVersion');
+
+    if (currentVersion !== process.env.APP_VERSION) {
+      localStorage.clear();
+      localStorage.setItem('appVersion', process.env.APP_VERSION);
+      console.log(process.env.APP_VERSION + " cleared.")
+    }
+
     const allGamesCached = localStorage.getItem('allGamesCached');
     const nextGameCached = localStorage.getItem('nextGameCached');
     const teamRecordCached = localStorage.getItem('teamRecordCached');
@@ -85,7 +94,7 @@ export default {
     if (allGamesCached && nextGameCached && cachedDataExpires) {
       const now = new Date().toLocaleDateString();
       const expires = new Date(cachedDataExpires).toLocaleDateString();
-      console.log(now,expires);
+      console.log(now, expires);
       if (now < expires) {
         this.games = JSON.parse(allGamesCached);
         this.nextGame = JSON.parse(nextGameCached);
@@ -144,7 +153,7 @@ export default {
       } catch (err) {
         console.log(err);
       }
-      
+
     },
     async getTeamRecord(id) {
       try {
@@ -263,6 +272,7 @@ body {
 .item:last-child {
   border-bottom: 0;
 }
+
 .team-record {
   margin: 0;
   padding: 5px 5px 5px 5px;
