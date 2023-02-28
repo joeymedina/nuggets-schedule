@@ -39,12 +39,12 @@
             <div v-if="game.HomeCity !== 'Denver'" class="logo-container">
               <img class="logo2" :src="game.HomeLogo" alt="Team 1 logo">
               {{ game.HomeCity }} {{ game.HomeState }}
-              <div class="team-record">({{ nextGame[0].HomeTeamRecord }})</div>
+              <div class="team-record">({{ game.HomeTeamRecord }})</div>
             </div>
             <div v-else class="logo-container">
               <img class="logo2" :src="game.AwayLogo" alt="Team 2 logo">
               {{ game.AwayCity }} {{ game.AwayState }}
-              <div class="team-record">({{ nextGame[0].AwayTeamRecord }})</div>
+              <div class="team-record">({{ game.AwayTeamRecord }})</div>
 
             </div>
           </div>
