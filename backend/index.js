@@ -7,6 +7,7 @@ import Router from "./routes/routes.js";
 import { HOST, PORT } from './config/config.js'
 import { scheduleUpdateJob } from './jobs/updateJob.js';
 
+//file name
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const path = __dirname + '/public/'
