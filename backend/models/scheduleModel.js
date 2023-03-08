@@ -14,6 +14,11 @@ export const getGames = (result) => {
 };
 
 export const getNextGame = (result) => {
+    console.log(`SELECT Schedule.id, Schedule.time AS GameTime, T1.City AS HomeCity, T1.Name AS HomeState, T1.logo AS HomeLogo,T1.record as HomeTeamRecord, T2.City AS AwayCity, T2.Name AS AwayState, T2.logo AS AwayLogo, T2.record as AwayTeamRecord
+    FROM Schedule
+    JOIN Teams AS T1 ON Schedule.homeTeam = T1.id
+    JOIN Teams AS T2 ON Schedule.awayTeam = T2.id
+    WHERE DATE(CONVERT_TZ(Schedule.time, '+00:00', @@session.time_zone)) >= DATE('${today.toISOString()}') LIMIT 1`)
   db.query(
     `SELECT Schedule.id, Schedule.time AS GameTime, T1.City AS HomeCity, T1.Name AS HomeState, T1.logo AS HomeLogo,T1.record as HomeTeamRecord, T2.City AS AwayCity, T2.Name AS AwayState, T2.logo AS AwayLogo, T2.record as AwayTeamRecord
               FROM Schedule
