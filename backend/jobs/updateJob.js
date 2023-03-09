@@ -4,7 +4,7 @@ import * as schedule from 'node-schedule';
 
 export function scheduleUpdateJob() {
   const rule = new schedule.RecurrenceRule();
-  rule.hour = 0;
+  rule.hour = 6;
   rule.minute = 0;
   rule.second = 0;
     console.log("Job Scheduled")
