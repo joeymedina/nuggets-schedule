@@ -19,7 +19,7 @@ export const getNextGame = (result) => {
               FROM Schedule
               JOIN Teams AS T1 ON Schedule.homeTeam = T1.id
               JOIN Teams AS T2 ON Schedule.awayTeam = T2.id
-              WHERE CONVERT_TZ(Schedule.time, 'UTC', 'America/Chicago') >= CURDATE()`,
+              WHERE CONVERT_TZ(Schedule.time, 'UTC', 'America/Chicago') >= CURDATE() LIMIT 1`,
     (err, results) => {
       if (err) {
         console.log(err);
