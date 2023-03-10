@@ -1,4 +1,4 @@
-import { getGames, getNextGame, getFullGameData, updateTeamRecords, getTeamRecord } from "../models/scheduleModel.js";
+import { getGames, getNextGame, getFullGameData, updateTeamRecords, getTeamRecord, getGamesByTeamId } from "../models/scheduleModel.js";
 
 export const showGames = (req,res) => {
     getGames((err, results) => {
@@ -10,6 +10,15 @@ export const showGames = (req,res) => {
     });
 }
 
+export const showGamesByTeamId = (req,res) => {
+    getGamesByTeamId(req, (err,results) => {
+        if(err) {
+            res.send(err);
+        } else{
+            res.send(results);
+        }
+    });
+}
 export const showNextGame = (req,res) => {
     getNextGame((err, results) => {
         if (err) {

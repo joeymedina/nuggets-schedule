@@ -13,6 +13,17 @@ export const getGames = (result) => {
   });
 };
 
+export const getGamesByTeamId = (req,result) => {
+    db.query(`SELECT * FROM FullSchedule where homeTeam = ${req.params.id} or awayTeam = ${req.params.id}`, (err, results) => {
+      if (err) {
+        console.log(err);
+        result(err, null);
+      } else {
+        result(null, results);
+      }
+    });
+};
+
 export const getNextGame = (result) => {
   db.query(
     `SELECT Schedule.id, Schedule.time AS GameTime, T1.City AS HomeCity, T1.Name AS HomeState, T1.logo AS HomeLogo,T1.record as HomeTeamRecord, T2.City AS AwayCity, T2.Name AS AwayState, T2.logo AS AwayLogo, T2.record as AwayTeamRecord
