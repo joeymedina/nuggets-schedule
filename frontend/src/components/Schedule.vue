@@ -115,7 +115,7 @@ export default {
   methods: {
     async loadData() {
       const cachedDefaultTeam = localStorage.getItem('defaultTeam');
-      const defaultTeam = cachedDefaultTeam !== undefined ? cachedDefaultTeam : this.defaultTeam
+      const defaultTeam = (cachedDefaultTeam !== null) ? cachedDefaultTeam : this.defaultTeam
       this.defaultTeam = defaultTeam;
 
       const allGames = await this.getGamesByTeamId(this.id);
