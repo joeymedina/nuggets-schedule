@@ -27,6 +27,7 @@ export const getNextGameByTeamId = (req, result) => {
                    WHERE ((Schedule.homeTeam = '${req.params.id}' OR Schedule.awayTeam = '${req.params.id}') AND Schedule.time > CURDATE())
                    ORDER BY Schedule.time ASC
                    LIMIT 1`;
+    console.log(query);
   const key = `${req.params.id}-nextGame`;
   useCache(req, result, query, key);
 };
