@@ -1,10 +1,25 @@
 <template>
   <div>
     <div class="box" id="heading">
-      <h1>Denver Nuggets 2022-2023</h1>
-      <h2>({{ teamRecord }})</h2>
+      <h1 v-if="loadedTeam">{{ team[0].city }} {{ team[0].name }}</h1>
+      <h2 v-if="loadedTeam">({{ team[0].record }})</h2>
     </div>
 
+    <div class="box">
+      <div class="container">
+        <div class="dropdown" v-if="loadedTeams">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            Select Team
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" v-for="team in teams" :key="team.id" :href="team.id">{{ team.name }}</a></li>
+          </ul>
+        </div>
+        <br>
+        <button type="button"  @click="setDefault" class="btn btn-link">Set as Default</button>
+      </div>
+    </div>
     <div v-if="loadedNextGame">
 
       <div class="box">
@@ -14,7 +29,7 @@
         </div>
 
         <div class="container">
-          <div v-if="nextGame[0].HomeCity !== 'Denver'" class="logo-container">
+          <div v-if="nextGame[0].HomeCity !== team[0].city" class="logo-container">
             <img class="logo" :src="nextGame[0].HomeLogo" alt="Team 1 logo">
             <div class="team-name">{{ nextGame[0].HomeCity }} {{ nextGame[0].HomeState }} </div>
             <div class="team-record">({{ nextGame[0].HomeTeamRecord }})</div>
@@ -32,11 +47,11 @@
 
       <div v-for="game in games" :key="game.id">
         <div class="box2" v-if="game?.GameTime > nextGame[0]?.GameTime">
-          <h3 v-if="game.HomeCity === 'Denver'" class="team-name">HOME</h3>
+          <h3 v-if="game.HomeCity === team[0].city" class="team-name">HOME</h3>
           <h3 v-else class="team-name">AWAY</h3>
 
           <div class="container">
-            <div v-if="game.HomeCity !== 'Denver'" class="logo-container">
+            <div v-if="game.HomeCity !== team[0].city" class="logo-container">
               <img class="logo2" :src="game.HomeLogo" alt="Team 1 logo">
               {{ game.HomeCity }} {{ game.HomeState }}
               <div class="team-record">({{ game.HomeTeamRecord }})</div>
@@ -61,50 +76,24 @@
 </template>
 
 <script>
-// import axios from "axios";
 import http from "../http-common.js";
 import moment from "moment-timezone";
-// import { NODE_ENV } from '../../../backend/config/config.js';
 
 export default {
   name: "ListSchedule",
+  props: ["id"],
   data() {
     return {
       games: [],
       nextGame: [],
-      teamRecord: ''
+      teams: [],
+      team: [],
+      defaultTeam: 1610612743
     };
   },
 
-  created() {
-
-    const currentVersion = localStorage.getItem('appVersion');
-
-    if (currentVersion !== process.env.APP_VERSION) {
-      localStorage.clear();
-      localStorage.setItem('appVersion', process.env.APP_VERSION);
-      console.log(process.env.APP_VERSION + " cleared.")
-    }
-
-    const allGamesCached = localStorage.getItem('allGamesCached');
-    const nextGameCached = localStorage.getItem('nextGameCached');
-    const teamRecordCached = localStorage.getItem('teamRecordCached');
-    const cachedDataExpires = localStorage.getItem('cachedDataExpires');
-
-    if (allGamesCached && nextGameCached && cachedDataExpires) {
-      const now = new Date().toLocaleDateString();
-      const expires = new Date(cachedDataExpires).toLocaleDateString();
-      console.log(now, expires);
-      if (now < expires) {
-        this.games = JSON.parse(allGamesCached);
-        this.nextGame = JSON.parse(nextGameCached);
-        this.teamRecord = teamRecordCached;
-      } else {
-        this.loadData();
-      }
-    } else {
-      this.loadData();
-    }
+  async created() {
+    this.loadData();
   },
 
   computed: {
@@ -113,28 +102,37 @@ export default {
     },
     loadedNextGame() {
       return this.nextGame.length;
+    },
+    loadedTeams() {
+      return this.teams.length;
+    },
+    loadedTeam() {
+      return this.team.length;
     }
   }
   ,
 
   methods: {
     async loadData() {
-      const allGames = await this.getGames();
-      const nextGame = await this.getNextGame();
-      const teamRecord = await this.getTeamRecord(1610612743);
+      const cachedDefaultTeam = localStorage.getItem('defaultTeam');
+      const defaultTeam = cachedDefaultTeam !== undefined ? cachedDefaultTeam : this.defaultTeam
+      this.defaultTeam = defaultTeam;
 
+      const allGames = await this.getGamesByTeamId(this.id);
+      const nextGame = await this.getNextGameByTeamId(this.id);
+      const team = await this.getTeam(this.id);
+      const allTeams = await this.getTeams();
+
+      this.team = team;
+      this.teams = allTeams;
       this.games = allGames;
       this.nextGame = nextGame;
-      this.teamRecord = teamRecord;
 
-      localStorage.setItem('allGamesCached', JSON.stringify(allGames));
-      localStorage.setItem('nextGameCached', JSON.stringify(nextGame));
-      localStorage.setItem('teamRecordCached', teamRecord);
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      localStorage.setItem('cachedDataExpires', tomorrow);
     },
-
+    setDefault(){
+      localStorage.removeItem('defaultTeam')
+      localStorage.setItem('defaultTeam',this.team[0].id)
+    },
     // Get All Games
     async getGames() {
       try {
@@ -144,7 +142,16 @@ export default {
         console.log(err);
       }
     },
-
+    //Get All Games for Team
+    async getGamesByTeamId(id) {
+      try {
+        let teamId = id !== undefined ? id : this.defaultTeam
+        const response = await http.get(`/api/getTeamSchedule/${teamId}`);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
     // Get Next Game >= Today 
     async getNextGame() {
       try {
@@ -153,11 +160,37 @@ export default {
       } catch (err) {
         console.log(err);
       }
-
+    },
+    // Get Next Game >= Today by Team
+    async getNextGameByTeamId(id) {
+      try {
+        let teamId = id !== undefined ? id : this.defaultTeam
+        const response = await http.get(`/api/getNextGame/${teamId}`);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
     },
     async getTeamRecord(id) {
       try {
         const response = await http.get(`/api/getTeamRecord/${id}`);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async getTeams() {
+      try {
+        const response = await http.get(`/api/getTeams/`);
+        return response.data;
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async getTeam(id) {
+      try {
+        let teamId = id !== undefined ? id : this.defaultTeam
+        const response = await http.get(`/api/getTeam/${teamId}`);
         return response.data;
       } catch (err) {
         console.log(err);
@@ -181,17 +214,11 @@ html {
   font-family: "Lucida Console";
 }
 
-h1 {
-  color: #fff;
-  padding: 10px;
-}
-
-h2 {
-  padding: 10px;
-}
-
 body {
   background-color: #1a2f82;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #F5F5F5;
 }
 
 .container {
@@ -207,18 +234,26 @@ body {
   padding: 0 50px 20px 50px;
 }
 
+.logo-container img {
+  max-width: 80px;
+  max-height: 80px;
+}
+
 .logo {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
+  margin: 10px auto;
 }
 
 .logo2 {
-  width: 75px;
-  height: 75px;
+  width: 60px;
+  height: 60px;
+  margin: 10px auto;
 }
 
 .team-name {
   text-align: center;
+
 }
 
 .flex-container {
@@ -231,35 +266,46 @@ body {
   flex: 2;
   justify-content: center;
   align-items: center;
-
-}
-
-.flex-child:first-child {
   margin-right: 20px;
 }
 
+.flex-child:last-child {
+  margin-right: 0;
+}
 
 .box {
-  max-width: 800px;
-  margin: 25px auto;
-  background: white;
+  background-color: #FFF;
   border-radius: 5px;
-  box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 800px;
 }
 
 .box2 {
-  max-width: 600px;
-  margin: 25px auto;
-  background: white;
+  background-color: #FFF;
   border-radius: 5px;
-  box-shadow: 5px 5px 15px -5px rgba(0, 0, 0, 0.3);
-  padding: 10px 0 0 10px
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  margin: 10px auto;
+  max-width: 800px;
 }
 
+.box h1 {
+  font-size: 36px;
+  margin: 0;
+}
+
+.box h2 {
+  font-size: 24px;
+  margin: 10px 0 0;
+  color: #333;
+}
 
 #heading {
   background-color: #4287f5;
   text-align: center;
+  margin: 0;
 }
 
 .item {
@@ -267,6 +313,7 @@ body {
   display: flex;
   align-items: center;
   border-bottom: 1px solid #f1f1f1;
+  padding: 5px;
 }
 
 .item:last-child {
@@ -275,61 +322,18 @@ body {
 
 .team-record {
   margin: 0;
-  padding: 5px 5px 5px 5px;
+  padding: 5px;
   font-size: 14px;
   font-weight: 200;
   color: #00204a;
-}
-
-input:checked+p {
-  text-decoration: line-through;
-  text-decoration-color: #4287f5;
-}
-
-input[type="checkbox"] {
-  margin: 20px;
 }
 
 p {
   margin: 0;
-  padding: 0 20px 20px 20px;
+  padding: 20px;
   font-size: 20px;
   font-weight: 200;
   color: #00204a;
-}
-
-form {
-  text-align: center;
-  margin-left: 20px;
-}
-
-button {
-  border-color: transparent;
-  background-color: #4287f5;
-  color: #fff;
-  font-size: 14px;
-  border-width: 0;
-}
-
-input[type="text"] {
-  text-align: center;
-  height: 60px;
-  top: 10px;
-  border: none;
-  background: transparent;
-  font-size: 20px;
-  font-weight: 200;
-  width: 313px;
-}
-
-input[type="text"]:focus {
-  outline: none;
-  box-shadow: inset 0 -3px 0 0 #4287f5;
-}
-
-::placeholder {
-  color: grey;
-  opacity: 1;
 }
 
 footer {

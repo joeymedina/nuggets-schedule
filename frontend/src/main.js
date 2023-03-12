@@ -1,18 +1,29 @@
-// import * as Vue from 'vue';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.js";
 import { createApp } from 'vue';
-import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
-import Index from './components/Schedule.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import App from './App.vue';
+import Index from './components/Schedule.vue';
 
-// Vue.config.productionTip = false;
 const routes = [
-    {
-        name: 'Index',
-        path: '/',
-        component: Index
-    }
-]
-export const eventBus = createApp(App);
-const router = createRouter({history: createWebHistory(process.env.VUE_APP_BASE_URL), routes})
+  {
+    name: 'Index',
+    path: '/',
+    component: Index,
+  },
+  {
+    name: 'Schedule',
+    path: '/:id',
+    component: Index,
+    props: true
+  },
+];
 
-createApp(App).use(Index).use(router).mount('#app')
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+createApp(App)
+  .use(router)
+  .mount('#app');

@@ -7,6 +7,6 @@ export function scheduleUpdateJob() {
   rule.hour = 6;
   rule.minute = 0;
   rule.second = 0;
-    console.log("Job Scheduled")
+  console.log("Job Scheduled")
   schedule.scheduleJob(rule, showUpdateTeamRecords);
 }

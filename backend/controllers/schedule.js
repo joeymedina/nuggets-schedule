@@ -1,4 +1,4 @@
-import { getGames, getNextGame, getFullGameData, updateTeamRecords, getTeamRecord, getGamesByTeamId } from "../models/scheduleModel.js";
+import { getGames, getNextGame, getFullGameData, updateTeamRecords, getTeamRecord, getGamesByTeamId, getTeams, getTeamById, getNextGameByTeamId } from "../models/scheduleModel.js";
 
 export const showGames = (req,res) => {
     getGames((err, results) => {
@@ -9,7 +9,15 @@ export const showGames = (req,res) => {
         }
     });
 }
-
+export const showTeams = (req,res) => {
+    getTeams((err,results) => {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(results);
+        }
+    });
+}
 export const showGamesByTeamId = (req,res) => {
     getGamesByTeamId(req, (err,results) => {
         if(err) {
@@ -28,7 +36,15 @@ export const showNextGame = (req,res) => {
         }
     });
 }
-
+export const showNextGameByTeamId = (req,res) => {
+    getNextGameByTeamId(req,(err,results) => {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(results);
+        }
+    });
+}
 export const showFullGameData = (req,res) => {
     getFullGameData((err,results) => {
         if(err) {
@@ -54,9 +70,19 @@ export const showTeamRecord = (req,res) => {
     getTeamRecord(req, (err,results) => {
         if(err) {
             res.send(err);
-        } else{
+        } else {
             res.send(results[0].record);
         }
     });
 }
 
+
+export const showTeamById = (req,res) => {
+    getTeamById(req, (err,results) => {
+        if (err) {
+            res.send(err);
+        } else {
+            res.send(results);
+        }
+    });
+}
